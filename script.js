@@ -1,139 +1,146 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Dynamic Footer Year
-  const yearEl = document.getElementById("year");
-  if (yearEl) {
-    yearEl.textContent = new Date().getFullYear();
-  }
+  // 1. Copyright Year
+  document.querySelectorAll("[data-year]").forEach((el) => {
+    el.textContent = new Date().getFullYear();
+  });
 
-  // 2. Mobile Navigation Toggle
+  // 2. Mobile Menu
   const menuToggle = document.getElementById("mobile-menu-toggle");
   const navLinks = document.getElementById("nav-links");
-
   if (menuToggle && navLinks) {
     menuToggle.addEventListener("click", () => {
-      const isOpen = navLinks.classList.toggle("is-open");
-      menuToggle.setAttribute("aria-expanded", String(isOpen));
-    });
-
-    navLinks.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("is-open");
-        menuToggle.setAttribute("aria-expanded", "false");
-      });
+      const open = navLinks.classList.toggle("is-open");
+      menuToggle.setAttribute("aria-expanded", String(open));
     });
   }
 
-  // 3. FAQ Accordion
+  // 3. Hero Interactive Missed-Call Simulator
+  const simBtn = document.getElementById("sim-trigger-btn");
+  const simStatus = document.getElementById("sim-status");
+  const msg1 = document.getElementById("sim-msg-1");
+  const msg2 = document.getElementById("sim-msg-2");
+  const msg3 = document.getElementById("sim-msg-3");
+  const simFooter = document.getElementById("sim-footer");
+
+  if (simBtn && msg1 && msg2 && msg3 && simFooter && simStatus) {
+    simBtn.addEventListener("click", () => {
+      simBtn.disabled = true;
+      simBtn.textContent = "Simulating Live Call...";
+      simStatus.textContent = "Incoming Call: +61 412 884 201 — Ringing...";
+      [msg1, msg2, msg3, simFooter].forEach((el) => el.classList.add("is-hidden"));
+
+      setTimeout(() => {
+        simStatus.textContent = "Missed Call Detected • Sending +61 SMS...";
+      }, 900);
+      setTimeout(() => {
+        simStatus.textContent = "Auto-Text Delivered in 9 Seconds";
+        msg1.classList.remove("is-hidden");
+      }, 1700);
+      setTimeout(() => {
+        msg2.classList.remove("is-hidden");
+      }, 2800);
+      setTimeout(() => {
+        msg3.classList.remove("is-hidden");
+        simFooter.classList.remove("is-hidden");
+        simStatus.textContent = "Missed Call: +61 412 884 201 • Saved";
+        simBtn.disabled = false;
+        simBtn.textContent = "▶ Replay Live 10-Sec Demo";
+      }, 3900);
+    });
+  }
+
+  // 4. Interactive Lost Revenue ROI Calculator
+  const callsSlider = document.getElementById("calc-calls");
+  const valueSlider = document.getElementById("calc-value");
+  function updateCalculator() {
+    if (!callsSlider || !valueSlider) return;
+    const missed = Number(callsSlider.value);
+    const jobVal = Number(valueSlider.value);
+    const monthlyJobs = +(missed * 4.33 * 0.25).toFixed(1);
+    const monthlyRev = Math.round(monthlyJobs * jobVal);
+    const annualRev = monthlyRev * 12;
+
+    const set = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+    set("calc-calls-val", `${missed} calls / week`);
+    set("calc-value-val", `$${jobVal.toLocaleString("en-AU")}`);
+    set("calc-annual", `$${annualRev.toLocaleString("en-AU")}`);
+    set("calc-monthly", `$${monthlyRev.toLocaleString("en-AU")}/mo`);
+    set("calc-jobs", `~${monthlyJobs} jobs/mo`);
+  }
+  if (callsSlider && valueSlider) {
+    callsSlider.addEventListener("input", updateCalculator);
+    valueSlider.addEventListener("input", updateCalculator);
+    updateCalculator();
+  }
+
+  // 5. Workflow Tabs (How It Works)
+  const tabBtns = document.querySelectorAll("[data-tab-target]");
+  const tabPanels = document.querySelectorAll("[data-tab-panel]");
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-tab-target");
+      tabBtns.forEach((b) => b.classList.remove("is-active"));
+      tabPanels.forEach((p) => p.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const panel = document.querySelector(`[data-tab-panel="${target}"]`);
+      if (panel) panel.classList.add("is-active");
+    });
+  });
+
+  // 6. FAQ Accordion
   const faqItems = document.querySelectorAll(".faq-item");
   faqItems.forEach((item) => {
     const btn = item.querySelector(".faq-question");
     if (!btn) return;
-
     btn.addEventListener("click", () => {
-      const currentlyOpen = item.classList.contains("is-open");
-      faqItems.forEach((other) => {
-        other.classList.remove("is-open");
-        const otherBtn = other.querySelector(".faq-question");
-        if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
+      const wasOpen = item.classList.contains("is-open");
+      faqItems.forEach((o) => {
+        o.classList.remove("is-open");
+        const q = o.querySelector(".faq-question");
+        if (q) q.setAttribute("aria-expanded", "false");
       });
-
-      if (!currentlyOpen) {
+      if (!wasOpen) {
         item.classList.add("is-open");
         btn.setAttribute("aria-expanded", "true");
       }
     });
   });
 
-  // 4. Demo Booking Modal + GoHighLevel Webhook Integration
-  // Optional: Paste your GoHighLevel Inbound Webhook URL or Formspree URL below
-  const WEBHOOK_URL = "";
-
-  const modal = document.getElementById("demo-modal");
-  const modalClose = document.getElementById("modal-close");
-  const formView = document.getElementById("modal-form-view");
-  const successView = document.getElementById("modal-success-view");
-  const demoForm = document.getElementById("demo-form");
-  const planInput = document.getElementById("lead-plan");
-  const errorBox = document.getElementById("form-error");
-  const submitBtn = document.getElementById("submit-btn");
-  const confirmName = document.getElementById("confirm-name");
-  const confirmBusiness = document.getElementById("confirm-business");
-  const successDoneBtn = document.getElementById("success-done-btn");
-
-  function openModal(planLabel) {
-    if (!modal) return;
-    if (planInput && planLabel) {
-      planInput.value = planLabel;
+  // 7. Booking Form (?plan= Prefill + Optional Webhook)
+  const WEBHOOK_URL = ""; // Paste GoHighLevel Inbound Webhook or Formspree URL here
+  const planSelect = document.getElementById("lead-plan");
+  if (planSelect) {
+    const planParam = new URLSearchParams(window.location.search).get("plan");
+    if (planParam) {
+      Array.from(planSelect.options).forEach((opt) => {
+        if (opt.value.toLowerCase().includes(planParam.toLowerCase())) {
+          planSelect.value = opt.value;
+        }
+      });
     }
-    formView.hidden = false;
-    successView.hidden = true;
-    errorBox.hidden = true;
-    modal.hidden = false;
-    document.body.style.overflow = "hidden";
-
-    // Close mobile menu if open
-    if (navLinks && menuToggle) {
-      navLinks.classList.remove("is-open");
-      menuToggle.setAttribute("aria-expanded", "false");
-    }
-
-    const firstInput = document.getElementById("lead-name");
-    if (firstInput) firstInput.focus();
   }
 
-  function closeModal() {
-    if (!modal) return;
-    modal.hidden = true;
-    document.body.style.overflow = "";
-  }
-
-  document.querySelectorAll("[data-open-modal]").forEach((trigger) => {
-    trigger.addEventListener("click", () => {
-      const plan = trigger.getAttribute("data-open-modal") || "General Demo";
-      openModal(plan);
-    });
-  });
-
-  if (modalClose) modalClose.addEventListener("click", closeModal);
-  if (successDoneBtn) successDoneBtn.addEventListener("click", closeModal);
-
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeModal();
-    });
-  }
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal && !modal.hidden) {
-      closeModal();
-    }
-  });
-
-  if (demoForm) {
-    demoForm.addEventListener("submit", async (e) => {
+  const bookingForm = document.getElementById("booking-form");
+  if (bookingForm) {
+    bookingForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      errorBox.hidden = true;
+      const errEl = document.getElementById("booking-error");
+      const btn = document.getElementById("booking-submit-btn");
+      errEl.hidden = true;
 
-      const formData = new FormData(demoForm);
-      const payload = {
-        name: String(formData.get("name") || "").trim(),
-        business: String(formData.get("business") || "").trim(),
-        phone: String(formData.get("phone") || "").trim(),
-        email: String(formData.get("email") || "").trim(),
-        software: String(formData.get("software") || "").trim(),
-        plan: String(formData.get("plan") || "").trim(),
-        submittedAt: new Date().toISOString()
-      };
-
-      if (!payload.name || !payload.business || !payload.phone || !payload.email) {
-        errorBox.textContent = "Please complete all required fields so we can call you for your demo.";
-        errorBox.hidden = false;
+      const fd = new FormData(bookingForm);
+      const payload = Object.fromEntries(fd.entries());
+      if (!payload.name?.trim() || !payload.business?.trim() || !payload.phone?.trim() || !payload.email?.trim()) {
+        errEl.textContent = "Please complete your name, business name, Australian mobile, and email.";
+        errEl.hidden = false;
         return;
       }
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Booking Your Demo...";
-
+      btn.disabled = true;
+      btn.textContent = "Locking In Your Demo...";
       try {
         if (WEBHOOK_URL) {
           await fetch(WEBHOOK_URL, {
@@ -142,19 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify(payload)
           });
         }
-
-        if (confirmName) confirmName.textContent = payload.name.split(" ")[0];
-        if (confirmBusiness) confirmBusiness.textContent = payload.business;
-
-        demoForm.reset();
-        formView.hidden = true;
-        successView.hidden = false;
-      } catch (err) {
-        errorBox.textContent = "Something went wrong sending your request. Please try again.";
-        errorBox.hidden = false;
+        document.getElementById("confirm-name").textContent = payload.name.trim().split(" ")[0];
+        document.getElementById("confirm-business").textContent = payload.business.trim();
+        document.getElementById("booking-form-wrap").hidden = true;
+        document.getElementById("booking-success-wrap").hidden = false;
+      } catch {
+        errEl.textContent = "Could not send request. Please try again.";
+        errEl.hidden = false;
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Lock In My 10-Minute Demo";
+        btn.disabled = false;
+        btn.textContent = "Book My 10-Minute Live Demo";
       }
     });
   }
