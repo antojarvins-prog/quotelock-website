@@ -1,0 +1,6 @@
+quotelock-website/
+├── index.html
+├── styles.css
+├── script.js
+├── vercel.json
+└── robots.txt
