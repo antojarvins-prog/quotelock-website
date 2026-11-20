@@ -25,15 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (simBtn && msg1 && msg2 && msg3 && simFooter && simStatus) {
     simBtn.addEventListener("click", () => {
       simBtn.disabled = true;
-      simBtn.textContent = "Simulating Live Call...";
-      simStatus.textContent = "Incoming Call: +61 412 884 201 — Ringing...";
+      simBtn.textContent = "Simulating Call...";
+      simStatus.textContent = "Incoming Call (Example): +61 4XX XXX XXX";
       [msg1, msg2, msg3, simFooter].forEach((el) => el.classList.add("is-hidden"));
 
       setTimeout(() => {
         simStatus.textContent = "Missed Call Detected • Sending +61 SMS...";
       }, 900);
       setTimeout(() => {
-        simStatus.textContent = "Auto-Text Delivered in 9 Seconds";
+        simStatus.textContent = "Example SMS Sent in 9 Seconds";
         msg1.classList.remove("is-hidden");
       }, 1700);
       setTimeout(() => {
@@ -42,21 +42,27 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         msg3.classList.remove("is-hidden");
         simFooter.classList.remove("is-hidden");
-        simStatus.textContent = "Missed Call: +61 412 884 201 • Saved";
+        simStatus.textContent = "Simulated Call • Inspection Booked";
         simBtn.disabled = false;
-        simBtn.textContent = "▶ Replay Live 10-Sec Demo";
+        simBtn.textContent = "▶ Replay Example Demo";
       }, 3900);
     });
   }
 
-  // 4. Interactive Lost Revenue ROI Calculator
+  // 4. Conservative 4-Input ROI Calculator
   const callsSlider = document.getElementById("calc-calls");
+  const genuineSlider = document.getElementById("calc-genuine");
+  const winSlider = document.getElementById("calc-win");
   const valueSlider = document.getElementById("calc-value");
+
   function updateCalculator() {
-    if (!callsSlider || !valueSlider) return;
+    if (!callsSlider || !genuineSlider || !winSlider || !valueSlider) return;
     const missed = Number(callsSlider.value);
+    const genuinePct = Number(genuineSlider.value);
+    const winPct = Number(winSlider.value);
     const jobVal = Number(valueSlider.value);
-    const monthlyJobs = +(missed * 4.33 * 0.25).toFixed(1);
+
+    const monthlyJobs = +(missed * 4.33 * (genuinePct / 100) * (winPct / 100)).toFixed(1);
     const monthlyRev = Math.round(monthlyJobs * jobVal);
     const annualRev = monthlyRev * 12;
 
@@ -64,19 +70,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const el = document.getElementById(id);
       if (el) el.textContent = txt;
     };
-    set("calc-calls-val", `${missed} calls / week`);
+    set("calc-calls-val", `${missed} / week`);
+    set("calc-genuine-val", `${genuinePct}%`);
+    set("calc-win-val", `${winPct}%`);
     set("calc-value-val", `$${jobVal.toLocaleString("en-AU")}`);
     set("calc-annual", `$${annualRev.toLocaleString("en-AU")}`);
     set("calc-monthly", `$${monthlyRev.toLocaleString("en-AU")}/mo`);
     set("calc-jobs", `~${monthlyJobs} jobs/mo`);
   }
-  if (callsSlider && valueSlider) {
-    callsSlider.addEventListener("input", updateCalculator);
-    valueSlider.addEventListener("input", updateCalculator);
+
+  if (callsSlider && genuineSlider && winSlider && valueSlider) {
+    [callsSlider, genuineSlider, winSlider, valueSlider].forEach((s) =>
+      s.addEventListener("input", updateCalculator)
+    );
     updateCalculator();
   }
 
-  // 5. Workflow Tabs (How It Works)
+  // 5. Workflow Tabs
   const tabBtns = document.querySelectorAll("[data-tab-target]");
   const tabPanels = document.querySelectorAll("[data-tab-panel]");
   tabBtns.forEach((btn) => {
@@ -109,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 7. Booking Form (?plan= Prefill + Optional Webhook)
+  // 7. Booking Form (?plan= Prefill + Webhook)
   const WEBHOOK_URL = ""; // Paste GoHighLevel Inbound Webhook or Formspree URL here
   const planSelect = document.getElementById("lead-plan");
   if (planSelect) {
